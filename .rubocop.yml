@@ -1,0 +1,12 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.7
+  Exclude:
+    - vendor/**/*
+    - bin/**/*
+
+require:
+  - rubocop-performance
+
+Style/Documentation:
+  Enabled: false  
