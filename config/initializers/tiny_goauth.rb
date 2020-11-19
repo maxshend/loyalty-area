@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+TinyGoauth::Rails.setup do |config|
+  config.access_key_path = ENV.fetch 'GOAUTH_ACCESS_PK'
+  config.refresh_key_path = ENV.fetch 'GOAUTH_REFRESH_PK'
+  config.model_name = 'User'
+end
