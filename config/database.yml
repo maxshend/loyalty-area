@@ -10,10 +10,12 @@ default: &default
 development:
   <<: *default
   database: <%= ENV.fetch( 'DB_NAME' ){ 'loyalty_area_development' } %>
+  url: <%= ENV.fetch 'DATABASE_URL' %>
 
 test:
   <<: *default
   database: loyalty_area_test
+  url: <%= ENV.fetch 'DATABASE_URL' %>
 
 production:
   <<: *default
