@@ -22,7 +22,6 @@ services:
       - rails_cache:/app/tmp/cache
       - bundle:/usr/local/bundle
       - .dockerdev/.psqlrc:/root/.psqlrc:ro
-      - .dockerdev/.bashrc:/root/.bashrc:ro
     environment:
       - RAILS_ENV=${RAILS_ENV:-development}
       - REDIS_URL=redis://redis:6379/

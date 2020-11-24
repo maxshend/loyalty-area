@@ -39,9 +39,7 @@ ENV LANG=C.UTF-8 \
 
 # Upgrade RubyGems and install required Bundler version
 RUN gem update --system && \
-    rm /usr/local/lib/ruby/gems/*/specifications/default/bundler-*.gemspec && \
-    gem uninstall bundler && \
-    gem install bundler -v $BUNDLER_VERSION
+    gem install bundler:$BUNDLER_VERSION
 
 # Create a directory for the app code
 RUN mkdir -p /app
