@@ -38,16 +38,19 @@ services:
 
   rails:
     <<: *backend
+    container_name: loyalty_area_rails
     command: bundle exec rails server -b 0.0.0.0
     ports:
       - '3000:3000'
 
   sidekiq:
     <<: *backend
+    container_name: loyalty_area_sidekiq
     command: bundle exec sidekiq -C config/sidekiq.yml
 
   postgres:
     image: postgres:11.1
+    container_name: loyalty_area_db
     volumes:
       - .psqlrc:/root/.psqlrc:ro
       - postgres:/var/lib/postgresql/data
@@ -62,6 +65,7 @@ services:
 
   redis:
     image: redis:3.2-alpine
+    container_name: loyalty_area_redis
     volumes:
       - redis:/data
     ports:

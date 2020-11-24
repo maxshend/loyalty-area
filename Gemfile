@@ -49,6 +49,7 @@ end
 group :test do
   gem 'database_cleaner'
   gem 'fuubar'
+  gem 'n_plus_one_control'
   gem 'shoulda-matchers'
   gem 'webmock'
 end
