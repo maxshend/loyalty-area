@@ -48,6 +48,32 @@ services:
     container_name: loyalty_area_sidekiq
     command: bundle exec sidekiq -C config/sidekiq.yml
 
+  auth:
+    container_name: loyalty_area_auth
+    image: tiny_goauth_dev
+    ports: ['8080:8080']
+    environment:
+      REDIS_URL: redis://redis:6379/
+      DB_URL: postgres://postgres:postgres@postgres:5432
+
+      APP_HOST: 127.0.0.1
+      APP_PORT: 8080
+
+      ACCESS_PRIVATE_PATH: /app/keys/access_private.rsa
+      REFRESH_PRIVATE_PATH: /app/keys/refresh_private.rsa
+
+      ACCESS_PUBLIC_PATH: /app/keys/access_public.rsa.pub
+      REFRESH_PUBLIC_PATH: /app/keys/refresh_public.rsa.pub
+
+      API_HOST: http://rails
+    volumes:
+      - ./config/keys:/app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   postgres:
     image: postgres:11.1
     container_name: loyalty_area_db
