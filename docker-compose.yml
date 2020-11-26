@@ -25,13 +25,13 @@ services:
     environment:
       - RAILS_ENV=${RAILS_ENV:-development}
       - REDIS_URL=redis://redis:6379/
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432
+      - DATABASE_URL=postgres://postgres:postgres@db_core:5432
       - BOOTSNAP_CACHE_DIR=/usr/local/bundle/_bootsnap
       - WEB_CONCURRENCY=1
       - HISTFILE=/app/log/.bash_history
       - PSQL_HISTFILE=/app/log/.psql_history
     depends_on:
-      postgres:
+      db_core:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -54,7 +54,7 @@ services:
     ports: ['8080:8080']
     environment:
       REDIS_URL: redis://redis:6379/
-      DB_URL: postgres://postgres:postgres@postgres:5432
+      DB_URL: postgres://postgres:postgres@db_auth:5432
 
       APP_HOST: 127.0.0.1
       APP_PORT: 8080
@@ -69,17 +69,32 @@ services:
     volumes:
       - ./config/keys:/app/keys
     depends_on:
-      postgres:
+      db_auth:
         condition: service_healthy
       redis:
         condition: service_healthy
 
-  postgres:
+  db_core:
     image: postgres:11.1
     container_name: loyalty_area_db
     volumes:
       - .psqlrc:/root/.psqlrc:ro
-      - postgres:/var/lib/postgresql/data
+      - db_core:/var/lib/postgresql/data
+      - ./log:/root/log:cached
+    environment:
+      - PSQL_HISTFILE=/root/log/.psql_history
+    ports:
+      - 5432
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 5s
+
+  db_auth:
+    image: postgres:11.1
+    container_name: loyalty_area_auth_db
+    volumes:
+      - .psqlrc:/root/.psqlrc:ro
+      - db_auth:/var/lib/postgresql/data
       - ./log:/root/log:cached
     environment:
       - PSQL_HISTFILE=/root/log/.psql_history
@@ -103,8 +118,10 @@ services:
       retries: 30
 
 volumes:
-  postgres:
-    name: loyalty-area-pg
+  db_auth:
+    name: loyalty-area-db-auth
+  db_core:
+    name: loyalty-area-db
   redis:
     name: loyalty-area-redis
   bundle:
