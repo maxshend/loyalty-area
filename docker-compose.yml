@@ -25,13 +25,13 @@ services:
     environment:
       - RAILS_ENV=${RAILS_ENV:-development}
       - REDIS_URL=redis://redis:6379/
-      - DATABASE_URL=postgres://postgres:postgres@db_core:5432
+      - DATABASE_URL=postgres://postgres:postgres@dbcore:5432
       - BOOTSNAP_CACHE_DIR=/usr/local/bundle/_bootsnap
       - WEB_CONCURRENCY=1
       - HISTFILE=/app/log/.bash_history
       - PSQL_HISTFILE=/app/log/.psql_history
     depends_on:
-      db_core:
+      dbcore:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -42,11 +42,19 @@ services:
     command: bundle exec rails server -b 0.0.0.0
     ports:
       - '3000:3000'
+    networks:
+      - db_core
+      - auth
+      - redis
 
   sidekiq:
     <<: *backend
     container_name: loyalty_area_sidekiq
     command: bundle exec sidekiq -C config/sidekiq.yml
+    networks:
+      - db_core
+      - auth
+      - redis
 
   auth:
     container_name: loyalty_area_auth
@@ -54,7 +62,8 @@ services:
     ports: ['8080:8080']
     environment:
       REDIS_URL: redis://redis:6379/
-      DB_URL: postgres://postgres:postgres@db_auth:5432
+      DB_URL: postgres://postgres:postgres@dbauth:5432
+      MIGRATE_DB: 'true'
 
       APP_HOST: 127.0.0.1
       APP_PORT: 8080
@@ -65,16 +74,20 @@ services:
       ACCESS_PUBLIC_PATH: /app/keys/access_public.rsa.pub
       REFRESH_PUBLIC_PATH: /app/keys/refresh_public.rsa.pub
 
-      API_HOST: http://rails
+      API_HOST: http://rails:3000
     volumes:
       - ./config/keys:/app/keys
     depends_on:
-      db_auth:
+      dbauth:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - db_auth
+      - auth
+      - redis
 
-  db_core:
+  dbcore:
     image: postgres:11.1
     container_name: loyalty_area_db
     volumes:
@@ -88,8 +101,10 @@ services:
     healthcheck:
       test: pg_isready -U postgres -h 127.0.0.1
       interval: 5s
+    networks:
+      - db_core
 
-  db_auth:
+  dbauth:
     image: postgres:11.1
     container_name: loyalty_area_auth_db
     volumes:
@@ -103,6 +118,8 @@ services:
     healthcheck:
       test: pg_isready -U postgres -h 127.0.0.1
       interval: 5s
+    networks:
+      - db_auth
 
   redis:
     image: redis:3.2-alpine
@@ -116,6 +133,8 @@ services:
       interval: 1s
       timeout: 3s
       retries: 30
+    networks:
+      - redis
 
 volumes:
   db_auth:
@@ -128,3 +147,13 @@ volumes:
     name: loyalty-area-bundle
   rails_cache:
     name: loyalty-area-cache
+
+networks:
+  db_auth:
+    name: loyalty_area_db_auth
+  redis:
+    name: loyalty_area_redis
+  db_core:
+    name: loyalty_area_db_core
+  auth:
+    name: loyalty_area_auth

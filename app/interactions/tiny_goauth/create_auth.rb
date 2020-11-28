@@ -8,7 +8,7 @@ module TinyGoauth
     string :email
     string :full_name
     string :phone
-    datetime :birthdate
+    date_time :birthdate
 
     def execute
       @record = subject.find_by auth_id: id
