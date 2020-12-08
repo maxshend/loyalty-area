@@ -30,6 +30,7 @@ services:
       - WEB_CONCURRENCY=1
       - HISTFILE=/app/log/.bash_history
       - PSQL_HISTFILE=/app/log/.psql_history
+      - AUTH_URL=http://auth:8080
     depends_on:
       dbcore:
         condition: service_healthy
@@ -122,7 +123,7 @@ services:
       - db_auth
 
   redis:
-    image: redis:3.2-alpine
+    image: redis:alpine
     container_name: loyalty_area_redis
     volumes:
       - redis:/data

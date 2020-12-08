@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/maxshend/tiny_goauth-rails.git
-  revision: 45f1e6fbebabca9bc6e9fad9735b356ccd48f597
+  revision: a340ca741c11fb4bfaa9b91b75db37ff3ebe0c7a
   specs:
     tiny_goauth-rails (0.1.0)
       active_interaction (>= 3.8)
